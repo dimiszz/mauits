@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MauiTs", "src\MauiTs\MauiTs.csproj", "{2B51D199-E3B3-4740-A069-3BC0D70026BA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MauiTs.Repository", "src\MauiTs.Repository\MauiTs.Repository.csproj", "{72A1DB45-4126-4B31-BAAF-B32FCA661E1A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B51D199-E3B3-4740-A069-3BC0D70026BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B51D199-E3B3-4740-A069-3BC0D70026BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B51D199-E3B3-4740-A069-3BC0D70026BA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{2B51D199-E3B3-4740-A069-3BC0D70026BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B51D199-E3B3-4740-A069-3BC0D70026BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B51D199-E3B3-4740-A069-3BC0D70026BA}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{72A1DB45-4126-4B31-BAAF-B32FCA661E1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72A1DB45-4126-4B31-BAAF-B32FCA661E1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72A1DB45-4126-4B31-BAAF-B32FCA661E1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72A1DB45-4126-4B31-BAAF-B32FCA661E1A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {496CD9EA-908F-48DC-8402-F78A9D9BE185}
+	EndGlobalSection
+EndGlobal

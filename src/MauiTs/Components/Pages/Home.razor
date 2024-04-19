@@ -1,0 +1,164 @@
+﻿@page "/"
+@using MauiTs.Items
+@using System.Globalization
+@using MauiTs.Repository.Entities
+@using MauiTs.Services
+@inject IJSRuntime JS
+@inject TsContext _context
+@inject IAtividadeService _service
+
+<div class="col-12">
+        <h1>esqueceu o horario otario toma ai</h1>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Horarios / salas</th>
+                        <th scope="col">203 | 137</th>
+                        <th scope="col">219 | 153</th>
+                        <th scope="col">135 | 153</th>
+                        <th scope="col">137 | 153</th>
+                        <th scope="col">203 | 135</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">19:00 - 20:45</th>
+                        <td>AED II</td>
+                        <td>IE</td>
+                        <td>OAC I</td>
+                        <td>IAEC</td>
+                        <td>COO</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">21:00 - 22:45</th>
+                        <td>IAEC</td>
+                        <td>COO</td>
+                        <td>IE</td>
+                        <td>AED II</td>
+                        <td>OAC I</td>
+                    </tr>
+
+                </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action active">
+                Entregas
+            </a>
+            @foreach(var entrega in atividades)
+            {
+                <a href="#" class="list-group-item list-group-item-action">@entrega.Titulo <span class="text-danger">id:@entrega.Id</span></a>
+                @* <button class="btn btn-danger btn-sm float-right"><i class="fas fa-trash"></i></button> *@
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <form>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                <label for="inputData">Data limite</label>
+                @* <input type="date" class="form-control" id="inputData" placeholder="Data"> *@
+                    <input id="date-mask" class="form-control" @bind=date/>
+                </div>
+                <div class="form-group col-md-6">
+                <label for="inputTitulo">Titulo</label>
+                <input type="text" class="form-control" id="inputTitulo" placeholder="Titulo" @bind=atividade.Titulo>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputDescricao">Descrição</label>
+                <input type="text" class="form-control" id="inputDescricao" placeholder="Meu tema é..." @bind=atividade.Descricao>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputState">Materia</label>
+                    <select @bind=atividade.Materia id="inputState" class="form-control">
+                        <option selected>Selecione...</option>
+                        @foreach(var materia in materias)
+                        {
+                            <option id="@materia">@materia</option>
+                        }
+                    </select>
+                    </div>
+            </div>
+
+
+            <button type="button" class="btn btn-primary" @onclick=OnSubmit>Inserir Entrega</button>
+            @if (ValidationProblem)
+            {
+                <h6 class="badge-danger">Data inválida.</h6>
+            }
+        </form>
+    </div>
+    <div class="col-md-4">
+        <form>
+            <div class="form-group col-md-6">
+                <label for="idExcluir">Id para Excluir</label>
+                <input type="text" class="form-control" id="idExcluir" placeholder="Titulo" @bind=idParaExcluir>
+            </div>
+            <div class="form-group col-md-6">
+                <button type="button" class="btn btn-danger" @onclick=Excluir><i class="fas fa-trash"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@code{
+    private string date = string.Empty;
+    private string idParaExcluir = string.Empty;
+    public List<Atividade> atividades = [];
+    public string[] materias = ["AED II", "IE", "OAC I", "IAEC", "COO"];
+    public Atividade atividade = new();
+    public bool ValidationProblem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AtualizarAtividades();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ValidationProblem = false;
+            await JS.InvokeVoidAsync("masks");
+        }
+    }
+    protected async void OnSubmit()
+    {
+        if(!DateOnly.TryParseExact(
+            date, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var validDate))
+        {
+            ValidationProblem = true;
+            return;
+        }
+
+        atividade.Data = validDate;
+        ValidationProblem = false;
+        await _service.Add(atividade);
+        atividades.Add(atividade);
+        atividade = new();
+        date = "";
+    }
+
+    protected async Task AtualizarAtividades()
+    {
+        var result = await _service.GetAll();
+        atividades = result.ToList();
+    }
+
+    protected async Task Excluir()
+    {
+        var id = Convert.ToInt64(idParaExcluir);
+        var result = await _service.Delete(id);
+        //var atividade = atividades.Find(atividade => atividade.Id == id);
+        //atividades.Remove(atividade ?? new());
+        await AtualizarAtividades();
+    }
+}
