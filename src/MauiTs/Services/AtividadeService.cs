@@ -9,6 +9,7 @@ public interface IAtividadeService
     Task<bool> Update(Atividade entity);
     Task<bool> Delete(long id);
     Task<IEnumerable<Atividade>> GetAll();
+    Task<Atividade> Get(long id);
 }
 public class AtividadeService(AtividadeRepository repo) : IAtividadeService
 {
@@ -22,6 +23,11 @@ public class AtividadeService(AtividadeRepository repo) : IAtividadeService
     {
         await repo.Delete(id);
         return true;
+    }
+
+    public async Task<Atividade> Get(long id)
+    {
+        return await repo.Get(id);
     }
 
     public async Task<IEnumerable<Atividade>> GetAll()

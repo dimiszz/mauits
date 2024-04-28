@@ -18,6 +18,7 @@ public class AtividadeRepository(TsContext ts) : IRepository<Atividade, long>
         {
             await ts.Atividades.AddAsync(entity);
             await ts.SaveChangesAsync();
+            ts.ChangeTracker.Clear();
             return true;
         }
         catch (Exception ex)
@@ -34,6 +35,7 @@ public class AtividadeRepository(TsContext ts) : IRepository<Atividade, long>
                 .Where(x => x.Id == id)
                 .ExecuteDeleteAsync();
             await ts.SaveChangesAsync();
+            ts.ChangeTracker.Clear();
             return true;
         }
         catch (Exception ex)
@@ -46,7 +48,7 @@ public class AtividadeRepository(TsContext ts) : IRepository<Atividade, long>
     {
         try
         {
-            return await ts.Atividades.ToListAsync();
+            return await ts.Atividades.AsNoTracking().ToListAsync();
         }
         catch (Exception ex)
         {
@@ -60,7 +62,23 @@ public class AtividadeRepository(TsContext ts) : IRepository<Atividade, long>
         {
             ts.Atividades.Update(entity);
             await ts.SaveChangesAsync();
+            ts.ChangeTracker.Clear();
             return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Erro ao atualizar atividade: {ex.Message}", ex);
+        }
+    }
+
+    public async Task<Atividade> Get(long id)
+    {
+        try
+        {
+            var result = await ts.Atividades
+                .AsNoTracking()
+                .SingleAsync(atv => atv.Id == id);
+            return result;
         }
         catch (Exception ex)
         {

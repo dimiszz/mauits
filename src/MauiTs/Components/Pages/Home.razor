@@ -3,6 +3,7 @@
 @using System.Globalization
 @using MauiTs.Repository.Entities
 @using MauiTs.Services
+@using MauiTs.Utils
 @inject IJSRuntime JS
 @inject TsContext _context
 @inject IAtividadeService _service
@@ -47,16 +48,38 @@
 </div>
 <div class="row">
     <div class="col-md-4">
-        <div class="list-group">
-            <a href="#" class="list-group-item list-group-item-action active">
-                Entregas
-            </a>
+        <table class="table table-borderless table-sm list-group">
+            <thead>
+                <tr class="list-group">
+                    <a class="list-group-item list-group-item-action active text-white">
+                        Entregas
+                    </a>
+                </tr>
+            </thead>
+            <tbody>
             @foreach(var entrega in atividades)
             {
-                <a href="#" class="list-group-item list-group-item-action">@entrega.Titulo <span class="text-danger">id:@entrega.Id</span></a>
+                    <tr class="list-group-item d-flex justify-content-between align-items-center">
+                        <td>
+                            @entrega.Data.ToString("dd/MM")
+                        </td>
+                        <td>
+                            <li class="d-flex justify-content-between align-items-center">
+                            @* @onclick="() => Editar(entrega.Id)" *@
+                                <a class="text-dark hover_black cursor-pointer">
+                                    @entrega.Titulo
+                                    @* <span class="text-danger">id:@entrega.Id</span> *@
+                                    </a>
+                            </li>
+                        </td>
+                        <td>
+                            <a class="text-danger cursor-pointer" @onclick="() => Excluir(entrega.Id)"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
                 @* <button class="btn btn-danger btn-sm float-right"><i class="fas fa-trash"></i></button> *@
             }
-        </div>
+            </tbody>
+        </table>
     </div>
     <div class="col-md-4">
         <form>
@@ -64,7 +87,7 @@
                 <div class="form-group col-md-6">
                 <label for="inputData">Data limite</label>
                 @* <input type="date" class="form-control" id="inputData" placeholder="Data"> *@
-                    <input id="date-mask" class="form-control" @bind=date/>
+                    <input id="date-mask" class="form-control" placeholder="dd/MM/yyyy" @bind=date/>
                 </div>
                 <div class="form-group col-md-6">
                 <label for="inputTitulo">Titulo</label>
@@ -112,6 +135,7 @@
 @code{
     private string date = string.Empty;
     private string idParaExcluir = string.Empty;
+    private bool editing = false;
     public List<Atividade> atividades = [];
     public string[] materias = ["AED II", "IE", "OAC I", "IAEC", "COO"];
     public Atividade atividade = new();
@@ -130,19 +154,30 @@
             await JS.InvokeVoidAsync("masks");
         }
     }
+
     protected async void OnSubmit()
     {
         if(!DateOnly.TryParseExact(
-            date, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var validDate))
+            date, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var validDate))
         {
             ValidationProblem = true;
             return;
         }
+        if (string.IsNullOrEmpty(atividade.Titulo)) return;
+        if (string.IsNullOrEmpty(atividade.Materia)) return;
 
         atividade.Data = validDate;
         ValidationProblem = false;
-        await _service.Add(atividade);
-        atividades.Add(atividade);
+
+        if (editing)
+        {
+            await _service.Update(atividade);
+        }
+        else
+        {
+            await _service.Add(atividade);
+            atividades.Add(atividade);
+        }
         atividade = new();
         date = "";
     }
@@ -150,15 +185,34 @@
     protected async Task AtualizarAtividades()
     {
         var result = await _service.GetAll();
-        atividades = result.ToList();
+        atividades = result.OrderBy(v => v.Data).ToList();
     }
 
     protected async Task Excluir()
     {
-        var id = Convert.ToInt64(idParaExcluir);
+        var id = idParaExcluir.TryToInt64();
+        if (!id.HasValue) return;
+        var result = await _service.Delete(id.Value);
+        //var atividade = atividades.Find(atividade => atividade.Id == id);
+        //atividades.Remove(atividade ?? new());
+        await AtualizarAtividades();
+    }
+
+    protected async Task Excluir(long id)
+    {
         var result = await _service.Delete(id);
         //var atividade = atividades.Find(atividade => atividade.Id == id);
         //atividades.Remove(atividade ?? new());
+        //await AtualizarAtividades();
+        await AtualizarAtividades();
+    }
+
+    protected async Task Editar(long id)
+    {
+        var result = await _service.Get(id);
+        atividade = result;
+        editing = true;
+        date = atividade.Data.ToString("dd/MM/yyyy");
         await AtualizarAtividades();
     }
 }
